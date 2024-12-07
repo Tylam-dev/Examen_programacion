@@ -47,6 +47,18 @@ Asegúrate de tener instalado lo siguiente en tu sistema:
    git clone https://github.com/Tylam-dev/Examen_programacion.git
    cd buscaminas
 
+## Estructura del proyecto
+├── Main.java                 // Punto de entrada del programa
+├── View.java                 // Maneja la interacción con el usuario y muestra el tablero
+├── InteractionController.java// Coordina entre la vista y el modelo del juego
+├── BoardModel.java           // Lógica principal del juego y el tablero
+├── Square.java               // Representa una celda individual en el tablero
+├── ResultModel.java          // Modelo para representar el estado del tablero
+├── InputClass.java           // Modelo para manejar la entrada del usuario
+├── IFinder.java              // Interfaz para buscar celdas
+
+
+
 ## Cómo Jugar
 
 El Buscaminas es un juego clásico que requiere habilidad y suerte para evitar las minas ocultas. A continuación, te explicamos cómo interactuar con el juego:
