@@ -10,32 +10,46 @@ public class Main {
     private static char[][] board = new char[SIZE][SIZE];
     private static boolean[][] mines = new boolean[SIZE][SIZE];
     private static boolean[][] revealed = new boolean[SIZE][SIZE];
+    private static boolean[][] flags = new boolean[SIZE][SIZE];
     public static void main(String[] args) {
         initializeBoard();
         placeMines();
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("¡Bienvenido al Buscaminas!");
-        System.out.println("Escribe una coordenada para descubrir (ejemplo: A5):");
-        printBoard(false); // Imprimir sin mostrar minas
+        System.out.println("Escribe 'V' para visitar o 'X' para marcar (ejemplo: V A5):");
+        printBoard(false);
 
         while (true) {
-            System.out.print("Introduce una celda: ");
+            System.out.print("Introduce una acción y celda: ");
             String input = scanner.nextLine().toUpperCase();
-            if (input.matches("[A-J][1-9]|[A-J]10")) {
-                int row = input.charAt(0) - 'A';
-                int col = Integer.parseInt(input.substring(1)) - 1;
+            if (input.matches("(V|X) [A-J][1-9]|(V|X) [A-J]10")) {
+                char action = input.charAt(0); // Acción: 'V' (visitar) o 'X' (marcar)
+                int row = input.charAt(2) - 'A';
+                int col = Integer.parseInt(input.substring(3)) - 1;
 
-                if (mines[row][col]) {
-                    System.out.println("¡Boom! Has pisado una mina. Fin del juego.");
-                    printBoard(true); // Imprimir mostrando minas
-                    break;
-                } else {
-                    revealCells(row, col);
+                if (action == 'V') {
+                    if (flags[row][col]) {
+                        System.out.println("La celda está marcada con 'X'. No puedes visitarla.");
+                    } else if (mines[row][col]) {
+                        System.out.println("¡Boom! Has pisado una mina. Fin del juego.");
+                        printBoard(true);
+                        break;
+                    } else {
+                        revealCells(row, col);
+                        printBoard(false);
+                    }
+                } else if (action == 'X') {
+                    flags[row][col] = !flags[row][col]; // Alternar marca
                     printBoard(false);
+                    if (checkVictory()) {
+                        System.out.println("¡Felicidades! Has marcado correctamente todas las minas.");
+                        printBoard(true);
+                        break;
+                    }
                 }
             } else {
-                throw new InputMismatchException("Coordenada no válida. Usa formato como A5.");
+                System.out.println("Entrada no válida. Usa formato como 'V A5' o 'X A5'.");
             }
         }
 
@@ -72,7 +86,7 @@ public class Main {
             return; // Fuera de límites o ya revelada
         }
 
-        revealed[row][col] = true; // Marcar como revelada
+        revealed[row][col] = true;
         int adjacentMines = countAdjacentMines(row, col);
 
         if (adjacentMines > 0) {
@@ -105,6 +119,21 @@ public class Main {
         return count;
     }
 
+    // Verificar victoria
+    private static boolean checkVictory() {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (mines[i][j] && !flags[i][j]) {
+                    return false; // Hay una mina no marcada
+                }
+                if (!mines[i][j] && flags[i][j]) {
+                    return false; // Hay una celda marcada incorrectamente
+                }
+            }
+        }
+        return true;
+    }
+
     // Imprimir tablero
     private static void printBoard(boolean revealMines) {
         System.out.print("   ");
@@ -118,6 +147,8 @@ public class Main {
             for (int j = 0; j < SIZE; j++) {
                 if (revealMines && mines[i][j]) {
                     System.out.print("* ");
+                } else if (flags[i][j]) {
+                    System.out.print("X ");
                 } else if (revealed[i][j]) {
                     System.out.print(board[i][j] + " ");
                 } else {
