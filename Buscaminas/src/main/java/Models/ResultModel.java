@@ -1,33 +1,17 @@
 package Models;
 
-public class ResultModel {
+import Interfaces.IFinder;
+
+import java.util.ArrayList;
+
+public class ResultModel implements IFinder {
     private int _size;
-    private int _existingMines;
     private boolean _finish;
-    private char[][] _board;
-    private boolean[][] _mines;
-    private boolean[][] _revealed;
-    private boolean[][] _flags;
-    public ResultModel(int size, int existingMines, boolean finish, char[][] board, boolean[][] mines, boolean[][] revealed, boolean[][] flags){
+    private ArrayList<Square> _squares;
+    public ResultModel(int size, boolean finish, ArrayList<Square> squares){
         this._size = size;
-        this._existingMines = existingMines;
         this._finish = finish;
-        this._board = board;
-        this._mines = mines;
-        this._revealed = revealed;
-        this._flags = flags;
-    }
-    public char[][] getBoard(){
-        return this._board;
-    }
-    public boolean[][] getMines(){
-        return this._mines;
-    }
-    public boolean[][] getRevealed(){
-        return this._revealed;
-    }
-    public boolean[][] getFlags(){
-        return this._flags;
+        this._squares = squares;
     }
     public boolean getFinish(){
         return this._finish;
@@ -35,7 +19,16 @@ public class ResultModel {
     public int getSize(){
         return this._size;
     }
-    public int getExistingMines(){
-        return this._existingMines;
+
+    @Override
+    public Square findSquare(int positionX, int positionY){
+        var charPositionY = this.positionYConvert(positionY);
+        var foundSquare = this._squares.stream().filter(s -> positionX == s.getPositionX() && charPositionY == s.getPositionY()).findFirst();
+        return foundSquare.get();
+    }
+    @Override
+    public char positionYConvert(int position){
+        var positions = new char[]{'A','B','C','D','F','G','H','J','K','M','N'};
+        return positions[position];
     }
 }

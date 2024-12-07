@@ -1,4 +1,5 @@
 package org.example;
+import Exceptions.InvalidMoveException;
 import View.View;
 
 public class Main {
@@ -7,9 +8,13 @@ public class Main {
         View view = new View();
         view.Incialize();
         while (true) {
-            var response = view.input();
-            if(response){
-                break;
+            try{
+                var response = view.input();
+                if(response){
+                    break;
+                }
+            }catch (InvalidMoveException e){
+                System.out.println("Error: " + e.getMessage());
             }
         }
     }

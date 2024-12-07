@@ -1,22 +1,20 @@
 package Models;
 
-import java.util.Random;
-import java.util.Scanner;
+import Interfaces.IFinder;
 
-public class BoardModel {
+import java.util.ArrayList;
+import java.util.Random;
+
+public class BoardModel implements IFinder {
     private int SIZE = 10;
-    private int MINES = 10; // Número de minas
-    private char[][] board = new char[SIZE][SIZE];
-    private boolean[][] mines = new boolean[SIZE][SIZE];
-    private boolean[][] revealed = new boolean[SIZE][SIZE];
-    private boolean[][] flags = new boolean[SIZE][SIZE];
+    private int MINES = 10;// Número de minas
+    private ArrayList<Square> squares = new ArrayList<Square>();
     private boolean finished = false;
     public boolean checkInput(char action, int row, int col){
-
         if (action == 'V') {
-            if (flags[row][col]) {
+            if (this.findSquare(row,col).getHasFlag()) {
                 System.out.println("La celda está marcada con 'X'. No puedes visitarla.");
-            } else if (mines[row][col]) {
+            } else if (this.findSquare(row,col).getIsMine()) {
                 System.out.println("¡Boom! Has pisado una mina. Fin del juego.");
                 this.finished = true;
                 return true;
@@ -25,7 +23,7 @@ public class BoardModel {
                 return false;
             }
         } else if (action == 'X') {
-            flags[row][col] = !flags[row][col]; // Alternar marca
+            this.findSquare(row,col).setHasFlag(!this.findSquare(row,col).getHasFlag()); // Alternar marca
             if (checkVictory()) {
                 System.out.println("¡Felicidades! Has marcado correctamente todas las minas.");
                 this.finished = true;
@@ -38,12 +36,12 @@ public class BoardModel {
 
     // Inicializar el tablero con celdas ocultas
     public void initializeBoard() {
-        placeMines();
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                board[i][j] = '.';
+                this.squares.add(new Square(i,this.positionYConvert(j)));
             }
         }
+        placeMines();
     }
     // Colocar minas aleatoriamente
     private void placeMines() {
@@ -53,25 +51,25 @@ public class BoardModel {
         while (placedMines < this.MINES) {
             int row = rand.nextInt(this.SIZE);
             int col = rand.nextInt(this.SIZE);
-            if (!mines[row][col]) {
-                mines[row][col] = true;
+            if (!this.findSquare(row,col).getIsMine()) {
+                this.findSquare(row,col).setIsMine(true);
                 placedMines++;
             }
         }
     }
     // Revelar celdas adyacentes
     private void revealCells(int row, int col) {
-        if (row < 0 || row >= this.SIZE || col < 0 || col >= this.SIZE || revealed[row][col]) {
+        if (row < 0 || row >= this.SIZE || col < 0 || col >= this.SIZE || this.findSquare(row,col).getIsRevealed()) {
             return; // Fuera de límites o ya revelada
         }
 
-        revealed[row][col] = true;
+        this.findSquare(row,col).setIsRevealed(true);
         int adjacentMines = countAdjacentMines(row, col);
 
         if (adjacentMines > 0) {
-            board[row][col] = (char) (adjacentMines + '0'); // Mostrar número de minas adyacentes
+            this.findSquare(row, col).setMinesAround((char) (adjacentMines + '0')); // Mostrar número de minas adyacentes
         } else {
-            board[row][col] = 'V'; // Marcar como visitada
+            this.findSquare(row, col).setMinesAround('V'); // Marcar como visitada
             // Expandir recursivamente a celdas vecinas
             for (int i = -1; i <= 1; i++) {
                 for (int j = -1; j <= 1; j++) {
@@ -89,7 +87,7 @@ public class BoardModel {
             for (int j = -1; j <= 1; j++) {
                 int newRow = row + i;
                 int newCol = col + j;
-                if (newRow >= 0 && newRow < this.SIZE && newCol >= 0 && newCol < this.SIZE && this.mines[newRow][newCol]) {
+                if (newRow >= 0 && newRow < this.SIZE && newCol >= 0 && newCol < this.SIZE && this.findSquare(newRow, newCol).getIsMine()) {
                     count++;
                 }
             }
@@ -101,10 +99,10 @@ public class BoardModel {
     private boolean checkVictory() {
         for (int i = 0; i < this.SIZE; i++) {
             for (int j = 0; j < this.SIZE; j++) {
-                if (this.mines[i][j] && !this.flags[i][j]) {
+                if (this.findSquare(i,j).getIsMine() && !this.findSquare(i,j).getHasFlag()) {
                     return false; // Hay una mina no marcada
                 }
-                if (!this.mines[i][j] && this.flags[i][j]) {
+                if (!this.findSquare(i,j).getIsMine() && !this.findSquare(i,j).getHasFlag()) {
                     return false; // Hay una celda marcada incorrectamente
                 }
             }
@@ -112,6 +110,17 @@ public class BoardModel {
         return true;
     }
     public ResultModel status (){
-        return  new ResultModel(this.SIZE,this.MINES,this.finished, this.board, this.mines, this.revealed, this.flags);
+        return  new ResultModel(this.SIZE,this.finished, this.squares);
+    }
+    @Override
+    public Square findSquare(int positionX, int positionY){
+        var charPositionY = this.positionYConvert(positionY);
+        var foundSquare = this.squares.stream().filter(s -> positionX == s.getPositionX() && charPositionY == s.getPositionY()).findFirst();
+        return foundSquare.get();
+    }
+    @Override
+    public char positionYConvert(int position){
+        var positions = new char[]{'A','B','C','D','F','G','H','J','K','M','N'};
+        return positions[position];
     }
 }

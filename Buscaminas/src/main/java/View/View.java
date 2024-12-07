@@ -1,6 +1,7 @@
 package View;
 
 import Controlador.InteractionController;
+import Exceptions.InvalidMoveException;
 import Models.ResultModel;
 
 import java.util.Scanner;
@@ -25,12 +26,12 @@ public class View {
         for (int i = 0; i < boardStatus.getSize(); i++) {
             System.out.print((char) ('A' + i) + "  ");
             for (int j = 0; j < boardStatus.getSize(); j++) {
-                if (boardStatus.getFinish() && boardStatus.getMines()[i][j]) {
+                if (boardStatus.getFinish() && boardStatus.findSquare(i,j).getIsMine()) {
                     System.out.print("* ");
-                } else if (boardStatus.getFlags()[i][j]) {
+                } else if (boardStatus.findSquare(i,j).getHasFlag()) {
                     System.out.print("X ");
-                } else if (boardStatus.getRevealed()[i][j]) {
-                    System.out.print(boardStatus.getBoard()[i][j] + " ");
+                } else if (boardStatus.findSquare(i,j).getIsRevealed()) {
+                    System.out.print(boardStatus.findSquare(i,j).getMinesAround() + " ");
                 } else {
                     System.out.print(". ");
                 }
@@ -50,8 +51,7 @@ public class View {
             this.printBoard(boardStatus);
             return finished;
         } else {
-            System.out.println("Entrada no válida. Usa formato como 'V A5' o 'X A5'.");
-            return false;
+            throw new InvalidMoveException("Entrada no válida. Usa formato como 'V A5' o 'X A5'.");
         }
     }
 }
