@@ -1,9 +1,10 @@
 package View;
 
 import Controlador.InteractionController;
-import Exceptions.InvalidMoveException;
+import Models.InputClass;
 import Models.ResultModel;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class View {
@@ -42,16 +43,20 @@ public class View {
     public boolean input(){
         System.out.print("Introduce una acción y celda: ");
         String input = _scanner.nextLine().toUpperCase();
+        var inputFormated = this.formatInput(input);
+        var finished = this._controller.sendAction(inputFormated.getAction(),inputFormated.getRow(),inputFormated.getCol());
+        var boardStatus = this._controller.getStatus();
+        this.printBoard(boardStatus);
+        return finished;
+    }
+    public InputClass formatInput(String input){
         if (input.matches("(V|X) [A-J][1-9]|(V|X) [A-J]10")) {
             char action = input.charAt(0); // Acción: 'V' (visitar) o 'X' (marcar)
             int row = input.charAt(2) - 'A';
             int col = Integer.parseInt(input.substring(3)) - 1;
-            var finished = this._controller.sendAction(action,row,col);
-            var boardStatus = this._controller.getStatus();
-            this.printBoard(boardStatus);
-            return finished;
+            return new InputClass(action, row, col);
         } else {
-            throw new InvalidMoveException("Entrada no válida. Usa formato como 'V A5' o 'X A5'.");
+            throw new InputMismatchException("Entrada no válida. Usa formato como 'V A5' o 'X A5'.");
         }
     }
 }

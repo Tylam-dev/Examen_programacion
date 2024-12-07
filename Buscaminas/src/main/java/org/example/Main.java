@@ -13,7 +13,7 @@ public class Main {
                 if(response){
                     break;
                 }
-            }catch (InvalidMoveException e){
+            }catch (Exception e){
                 System.out.println("Error: " + e.getMessage());
             }
         }

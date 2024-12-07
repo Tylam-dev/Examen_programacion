@@ -1,5 +1,6 @@
 package Models;
 
+import Exceptions.InvalidMoveException;
 import Interfaces.IFinder;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class BoardModel implements IFinder {
     public boolean checkInput(char action, int row, int col){
         if (action == 'V') {
             if (this.findSquare(row,col).getHasFlag()) {
-                System.out.println("La celda está marcada con 'X'. No puedes visitarla.");
+                throw new InvalidMoveException("La celda está marcada con 'X'. No puedes visitarla.");
             } else if (this.findSquare(row,col).getIsMine()) {
                 System.out.println("¡Boom! Has pisado una mina. Fin del juego.");
                 this.finished = true;

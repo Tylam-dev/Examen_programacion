@@ -3,6 +3,7 @@ package Models;
 import Interfaces.IFinder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class ResultModel implements IFinder {
     private int _size;
@@ -30,5 +31,13 @@ public class ResultModel implements IFinder {
     public char positionYConvert(int position){
         var positions = new char[]{'A','B','C','D','F','G','H','J','K','M','N'};
         return positions[position];
+    }
+
+    public ArrayList<Square> getSquares() {
+        return _squares;
+    }
+
+    public void setSquares(ArrayList<Square> squares) {
+        this._squares = squares;
     }
 }
